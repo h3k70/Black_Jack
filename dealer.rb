@@ -1,11 +1,11 @@
 class Dealer < Player
-  NAME = "Dealer"
+  NAME = 'Dealer'.freeze
 
   def initialize
     super(NAME)
   end
 
   def can_take_card?
-    super && total < 17
+    super && total < GameRules::DEALER_MAX_POINTS
   end
 end

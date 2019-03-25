@@ -1,0 +1,7 @@
+module GameRules
+  BLACKJACK = 21
+  DEALER_MAX_POINTS = 17
+  BET = 10
+  START_MONEY = 100
+  MAX_CARDS = 3
+end

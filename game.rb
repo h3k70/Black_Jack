@@ -3,17 +3,21 @@ require_relative 'dealer.rb'
 require_relative 'deck.rb'
 require_relative 'card.rb'
 require_relative 'interface.rb'
+require_relative 'gamerules.rb'
+require_relative 'accountant.rb'
 
 class Game
- 
   attr_accessor :deck, :player, :dealer
 
-  BET = 10
+  BJ = GameRules::BLACKJACK
 
   def initialize
+    @accountant = Accountant.new
     @interface = Interface.new
     start_game
   end
+
+  private
 
   def new_player
     name = @interface.ask_name
@@ -21,14 +25,14 @@ class Game
   end
 
   def start_game
-    @dealer = Dealer.new 
+    @dealer = Dealer.new
     new_player
     loop do
       break if money_zero?
+
       @interface.start
       give_cards
       bet
-      @interface.show_info(@player, @dealer)
       move_player
       open_cards
     end
@@ -38,14 +42,16 @@ class Game
   def give_cards
     @deck = Deck.new
     2.times do
-      @player.take_card(@deck.give_card)
-      @dealer.take_card(@deck.give_card)
+      @player.hand.take_card(@deck.give_card)
+      @dealer.hand.take_card(@deck.give_card)
     end
   end
 
   def bet
-    @player.give_money(BET)
-    @dealer.give_money(BET)
+    # @player.withdraw_money(GameRules::BET)
+    # @dealer.withdraw_money(GameRules::BET)
+    @accountant.bet(@player)
+    @accountant.bet(@dealer)
   end
 
   def money_zero?
@@ -53,57 +59,69 @@ class Game
   end
 
   def move_player
-    @interface.show_choice
-    user_choice = gets.to_i
-
-    case user_choice
-    when 1 then return 
-    when 2 then 
-      move_dealer
-    when 3 then 
-      @player.take_card(@deck.give_card)
-      move_dealer
+    loop do
+      @interface.show_info(@player, @dealer)
+      @interface.show_choice
+      user_choice = gets.to_i
+      case user_choice
+      when 1 then return
+      when 2 then
+        move_dealer
+      when 3 then
+        @player.hand.take_card(@deck.give_card)
+        move_dealer
+      end
     end
   end
 
   def move_dealer
-    @dealer.take_card(@deck.give_card) if @dealer.can_take_card?
+    @dealer.hand.take_card(@deck.give_card) if @dealer.hand.can_take_card?
   end
 
   def open_cards
     @interface.show_full_info(@player, @dealer)
-    if player.total == dealer.total
+    winner = who_win_raund(@player, @dealer)
+    reward_winner(winner)
+    reset
+  end
+
+  def who_win_raund(player, dealer)
+    if (player.hand.total == dealer.hand.total) || (BJ < player.hand.total && BJ < dealer.hand.total)
+      nil
+    elsif BJ < player.hand.total
+      @dealer
+    elsif BJ < dealer.hand.total
+      @player
+    elsif player.hand.total > dealer.hand.total
+      @player
+    elsif dealer.hand.total > player.hand.total
+      @dealer
+    end
+  end
+
+  def reset
+    @player.hand.fold
+    @dealer.hand.fold
+  end
+
+  def reward_winner(player)
+    if player.nil?
       draw
-    elsif 21 < player.total
-      player_lose
-    elsif 21 < dealer.total
-      player_win
-    elsif player.total > dealer.total
-      player_win
-    elsif dealer.total > player.total
-      player_lose
-    end 
-    @player.fold
-    @dealer.fold
-  end
-
-  def player_win
-    @interface.player_win
-    @player.take_money(BET*2)
-  end
-
-  def player_lose
-    @interface.player_lose
-    @dealer.take_money(BET*2)
+    else
+      @interface.reward_winner(player)
+      # @player.add_money(GameRules::BET*2)
+      @accountant.reward_winner(player)
+    end
   end
 
   def draw
     @interface.draw
-    @player.take_money(BET)
-    @dealer.take_money(BET)
+    # @player.add_money(GameRules::BET)
+    # @dealer.add_money(GameRules::BET)
+    @accountant.refund(@player, @dealer)
   end
 
-  def who_win
+  def who_win_game
     if @player.cash > 0
       @player
     else
@@ -112,7 +130,7 @@ class Game
   end
 
   def end_game
-    winner = who_win
+    winner = who_win_game
     user_choice = @interface.end_game(winner)
     case user_choice
     when 1 then start_game
@@ -122,4 +140,3 @@ class Game
 end
 
 game = Game.new
-
