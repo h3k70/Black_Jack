@@ -48,8 +48,6 @@ class Game
   end
 
   def bet
-    # @player.withdraw_money(GameRules::BET)
-    # @dealer.withdraw_money(GameRules::BET)
     @accountant.bet(@player)
     @accountant.bet(@dealer)
   end
@@ -81,7 +79,11 @@ class Game
   def open_cards
     @interface.show_full_info(@player, @dealer)
     winner = who_win_raund(@player, @dealer)
-    reward_winner(winner)
+    if winner
+      reward_winner(winner)
+    else
+      draw
+    end
     reset
   end
 
@@ -105,19 +107,12 @@ class Game
   end
 
   def reward_winner(player)
-    if player.nil?
-      draw
-    else
-      @interface.reward_winner(player)
-      # @player.add_money(GameRules::BET*2)
-      @accountant.reward_winner(player)
-    end
+    @interface.reward_winner(player)
+    @accountant.reward_winner(player)
   end
 
   def draw
     @interface.draw
-    # @player.add_money(GameRules::BET)
-    # @dealer.add_money(GameRules::BET)
     @accountant.refund(@player, @dealer)
   end
 

@@ -8,13 +8,12 @@ class Hand
   end
 
   def total
-    total = 0
+    total ||= 0
+    total = @cards.sum(&:point)
     @cards.each do |card|
-      total += if card.ace? && total > 10
-                 1
-               else
-                 card.point
-               end
+      if total > GameRules::BLACKJACK && card.ace?
+        total -= 10
+      end
     end
     total
   end
