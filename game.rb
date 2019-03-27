@@ -74,7 +74,7 @@ class Game
   end
 
   def move_dealer
-    @dealer.hand.take_card(@deck.give_card) if @dealer.can_take_card?
+    @dealer.hand.take_card(@deck.give_card) if @dealer.take_card?
   end
 
   def open_cards

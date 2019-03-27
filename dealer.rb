@@ -5,7 +5,7 @@ class Dealer < Player
     super(NAME)
   end
 
-  def can_take_card?
-    @hand.cards.size < GameRules::MAX_CARDS && @hand.total < GameRules::DEALER_MAX_POINTS
+  def take_card?
+    @hand.can_take_card? && @hand.total < GameRules::DEALER_MAX_POINTS
   end
 end
