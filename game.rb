@@ -3,7 +3,7 @@ require_relative 'dealer.rb'
 require_relative 'deck.rb'
 require_relative 'card.rb'
 require_relative 'interface.rb'
-require_relative 'gamerules.rb'
+require_relative 'game_rules.rb'
 require_relative 'accountant.rb'
 
 class Game
@@ -35,6 +35,7 @@ class Game
       bet
       move_player
       open_cards
+      end_round
     end
     end_game
   end
@@ -73,12 +74,12 @@ class Game
   end
 
   def move_dealer
-    @dealer.hand.take_card(@deck.give_card) if @dealer.hand.can_take_card?
+    @dealer.hand.take_card(@deck.give_card) if @dealer.can_take_card?
   end
 
   def open_cards
     @interface.show_full_info(@player, @dealer)
-    winner = who_win_raund(@player, @dealer)
+    winner = who_win_round(@player, @dealer)
     if winner
       reward_winner(winner)
     else
@@ -87,7 +88,17 @@ class Game
     reset
   end
 
-  def who_win_raund(player, dealer)
+  def end_round
+    @interface.show_money(@player, @dealer)
+    user_choice = @interface.end_round
+    case user_choice
+    when 1 then return
+    when 2 then exit
+    end
+  end
+
+
+  def who_win_round(player, dealer)
     if (player.hand.total == dealer.hand.total) || (BJ < player.hand.total && BJ < dealer.hand.total)
       nil
     elsif BJ < player.hand.total

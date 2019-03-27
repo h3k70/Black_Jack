@@ -13,9 +13,10 @@ class Interface
     'Добавить карту '
   ].freeze
   DRAW = 'Ничья'.freeze
-  WIN_RAUND = 'Bыиграл:'.freeze
+  WIN_ROUND = 'Bыиграл:'.freeze
   # LOSE = "Bы проиграли"
-  PLAY_AGAIN = 'Играть снова?(1-yes,2-no)'.freeze
+  PLAY_AGAIN = 'Играть снова?(1-да, 2-нет)'.freeze
+  BET_AGAIN = 'Сделать ставку снова?(1-да, 2-нет)'
   END_GAME = 'Победил:'.freeze
 
   def start
@@ -69,7 +70,7 @@ class Interface
   end
 
   def reward_winner(player)
-    print WIN_RAUND
+    print WIN_ROUND
     puts " #{player.name}"
   end
 
@@ -79,6 +80,16 @@ class Interface
     print END_GAME
     puts " #{winner.name}"
     puts PLAY_AGAIN
+    gets.to_i
+  end
+
+  def show_money(player, dealer)
+    puts MONEY + " #{player.name}:#{player.cash}"
+    puts MONEY + " #{dealer.name}:#{dealer.cash}"
+  end
+
+  def end_round
+    puts BET_AGAIN
     gets.to_i
   end
 

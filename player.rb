@@ -1,4 +1,4 @@
-require_relative 'gamerules.rb'
+require_relative 'game_rules.rb'
 require_relative 'hand.rb'
 
 class Player

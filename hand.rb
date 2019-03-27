@@ -1,4 +1,4 @@
-require_relative 'gamerules.rb'
+require_relative 'game_rules.rb'
 
 class Hand
   attr_accessor :cards
